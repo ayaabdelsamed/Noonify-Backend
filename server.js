@@ -7,6 +7,7 @@ import categoryRouter from "./routes/categoryRoute.js";
 import ApiError from "./utils/apiError.js";
 import globalError from "./middlewares/errorMiddleware.js";
 import subCategoryRouter from "./routes/subCategoryRoute.js";
+import brandRouter from "./routes/brandRoute.js";
 
 dotenv.config({ path: 'config.env'})
 
@@ -23,6 +24,7 @@ if(process.env.NODE_ENV === 'development'){
 // mount Routes
 app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/subcategories", subCategoryRouter);
+app.use("/api/v1/brands", brandRouter);
 
 
 app.use((req,res,next)=>{
