@@ -1,7 +1,7 @@
-import categoryModel from "../models/categoryModel.js";
 import slugify from "slugify"
 import asyncHandler from "express-async-handler";
-import ApiError from "../utils/apiError,js";
+import ApiError from "../utils/apiError.js";
+import categoryModel from "../models/categoryModel.js";
 
 /**
  * @desc    Create category
@@ -53,7 +53,7 @@ const getSpecificCategory = asyncHandler(async (req, res, next) => {
 const updateCategory = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const { name } = req.body;
-    const category = await categoryModel.findByIdAndUpdate(id, {...req.body, slug: slugify(name)} ,{
+    const category = await categoryModel.findOneAndUpdate({ _id: id }, {...req.body, slug: slugify(name)} ,{
     new: true,
     });
     if (!category) {

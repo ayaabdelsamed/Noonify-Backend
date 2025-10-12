@@ -4,8 +4,10 @@ import morgan from "morgan";
 
 import dbConnection from "./config/database.js";
 import categoryRouter from "./routes/categoryRoute.js";
-import ApiError from "./utils/apiError,js";
+import ApiError from "./utils/apiError.js";
 import globalError from "./middlewares/errorMiddleware.js";
+import subCategoryRouter from "./routes/subCategoryRoute.js";
+
 dotenv.config({ path: 'config.env'})
 
 // Connect with db
@@ -20,6 +22,7 @@ if(process.env.NODE_ENV === 'development'){
 }
 // mount Routes
 app.use("/api/v1/categories", categoryRouter);
+app.use("/api/v1/subcategories", subCategoryRouter);
 
 
 app.use((req,res,next)=>{
@@ -29,9 +32,9 @@ app.use((req,res,next)=>{
 // Global error handling middleware for express
 app.use(globalError);
 
-const PORT = process.env.PORT;
+const {PORT} = process.env;
 
-app.listen(PORT, () => console.log(`App running on port ${PORT}`));
+const server = app.listen(PORT, () => console.log(`App running on port ${PORT}`));
 
 
 
