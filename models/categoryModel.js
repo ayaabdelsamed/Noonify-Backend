@@ -14,11 +14,7 @@ const CategorySchema = new mongoose.Schema(
         type: String,
         lowercase: true,
     },
-    description: {
-        type: String,
-        minLength: [10, "Too short category description"],
-        maxLength: [20000, "Too long category description"],
-    },
+    imge: String,
     // imageCover: {
     //     type: String,
     //     required: [true, "Category cover image is required"],

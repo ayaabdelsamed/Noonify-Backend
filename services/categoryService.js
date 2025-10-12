@@ -1,6 +1,7 @@
 import categoryModel from "../models/categoryModel.js";
 import slugify from "slugify"
 import asyncHandler from "express-async-handler";
+import ApiError from "../utils/apiError,js";
 
 /**
  * @desc    Create category
@@ -38,7 +39,7 @@ const getSpecificCategory = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const category = await categoryModel.findById({ _id: id });
     if (!category) {
-    res.status(404).json({msg: `Category not found for this ${id}`});
+        return next(new ApiError(`Category not found for this ${id}`, 404));
     }
     res.status(200).json({ message: "success", data: category });
 });
@@ -55,6 +56,9 @@ const updateCategory = asyncHandler(async (req, res, next) => {
     const category = await categoryModel.findByIdAndUpdate(id, {...req.body, slug: slugify(name)} ,{
     new: true,
     });
+    if (!category) {
+        return next(new ApiError(`category not found for this ${id}`, 404));
+    }
     
     res.status(200).json({ message: "success", data: category });
 });
@@ -69,7 +73,7 @@ const deleteCategory = asyncHandler(async (req, res, next) => {
     const { id } = req.params;
     const category = await categoryModel.findByIdAndDelete(id);
     if (!category) {
-    res.status(404).json({msg: `Category not found for this ${id}`});
+        return next(new ApiError(`category not found for this ${id}`, 404))
     }
     res.status(200).json({ message: "success" });
 });

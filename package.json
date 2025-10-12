@@ -5,15 +5,18 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon server.js"
+    "start:dev": "nodemon server.js",
+    "start:prod": "cross-env NODE_ENV=production node server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cross-env": "^10.1.0",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "express-async-handler": "^1.2.0",
+    "express-validator": "^7.2.1",
     "mongoose": "^8.18.2",
     "morgan": "^1.10.1",
     "nodemon": "^3.1.10",
