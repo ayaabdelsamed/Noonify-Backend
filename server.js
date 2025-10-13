@@ -1,6 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import qs from "qs";
 
 import dbConnection from "./config/database.js";
 import categoryRouter from "./routes/categoryRoute.js";
@@ -8,6 +10,7 @@ import ApiError from "./utils/apiError.js";
 import globalError from "./middlewares/errorMiddleware.js";
 import subCategoryRouter from "./routes/subCategoryRoute.js";
 import brandRouter from "./routes/brandRoute.js";
+import productRouter from "./routes/productRoute.js";
 
 dotenv.config({ path: 'config.env'})
 
@@ -16,6 +19,7 @@ dbConnection()
 
 const app = express();
 app.use(express.json());
+app.set("query parser", (str) => qs.parse(str));
 
 if(process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'));
@@ -25,6 +29,7 @@ if(process.env.NODE_ENV === 'development'){
 app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/subcategories", subCategoryRouter);
 app.use("/api/v1/brands", brandRouter);
+app.use("/api/v1/products", productRouter);
 
 
 app.use((req,res,next)=>{

@@ -2,6 +2,7 @@ import slugify from "slugify"
 import asyncHandler from "express-async-handler";
 import ApiError from "../utils/apiError.js";
 import subCategoryModel from "../models/subCategoryModel.js";
+import { ApiFeatures } from "../utils/apiFeatures.js";
 
 /**
  * @desc    Create subCategory
@@ -39,16 +40,19 @@ const createFileObj = (req,res,next)=>{
  */
 
 const getAllSubCategories = asyncHandler(async (req, res, next) => {
-    const page = req.query.page * 1 || 1 ;
-    const limit = req.query.limit * 1 || 5;
-    const skip = (page -1) * limit
-
-    const subCategories = await subCategoryModel.find(req.filterObj)
-    .skip(skip)
-    .limit(limit)
-    //.populate({path: 'category', select: 'name -_id'});
-
-    res.status(200).json({ message: "success", results: subCategories.length, page, data: subCategories });
+    // Build query
+    const documentsCounts = await subCategoryModel.countDocuments();
+    const apiFeatures = new ApiFeatures(subCategoryModel.find(), req.query)
+    .paginate(documentsCounts)
+    .filter()
+    .search()
+    .limitFields()
+    .sort();
+    
+    // Execute query 
+    const {mongooseQuery, paginationResult} = apiFeatures;
+    const subCategories = await mongooseQuery;
+    res.status(200).json({ message: "success", results: subCategories.length, paginationResult, data: subCategories });
 });
 
 /**
