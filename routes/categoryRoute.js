@@ -1,5 +1,5 @@
 import express from "express";
-import { createCategory, deleteCategory, getAllCategories, getSpecificCategory, updateCategory } from "../services/categoryService.js";
+import { createCategory, deleteCategory, getAllCategories, getSpecificCategory, resizeImage, updateCategory, uploadCategoryImage } from "../services/categoryService.js";
 import { createCategoryValidator, deleteCategoryValidator, getCategoryValidator, updateCategoryValidator } from "../utils/validators/categoryValidator.js";
 import subCategoryRouter from "./subCategoryRoute.js";
 
@@ -9,13 +9,13 @@ categoryRouter.use('/:categoryId/subcategories',subCategoryRouter)
 
 categoryRouter
     .route("/")
-    .post(createCategoryValidator,createCategory)
+    .post(uploadCategoryImage,resizeImage,createCategoryValidator,createCategory)
     .get(getAllCategories);
 
 categoryRouter
     .route("/:id")
     .get(getCategoryValidator,getSpecificCategory)
-    .put(updateCategoryValidator,updateCategory)
+    .put(uploadCategoryImage,resizeImage,updateCategoryValidator,updateCategory)
     .delete(deleteCategoryValidator,deleteCategory);
 
 export default categoryRouter;

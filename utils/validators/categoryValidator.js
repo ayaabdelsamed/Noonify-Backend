@@ -28,6 +28,7 @@ export const getCategoryValidator = [
 export const updateCategoryValidator = [
   param("id").isMongoId().withMessage("Invalid category iD format"),
       body('name')
+        .optional()
         .custom((val, { req }) => {
           req.body.slug = slugify(val);
           return true;

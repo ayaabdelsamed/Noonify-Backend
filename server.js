@@ -1,3 +1,6 @@
+import path from 'path';
+import { fileURLToPath } from "url";
+
 import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
@@ -17,8 +20,14 @@ dotenv.config({ path: 'config.env'})
 // Connect with db
 dbConnection()
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
+
+// Middlewares
 app.use(express.json());
+app.use(express.static(path.join(__dirname,'uploads')));
 app.set("query parser", (str) => qs.parse(str));
 
 if(process.env.NODE_ENV === 'development'){

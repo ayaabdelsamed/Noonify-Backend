@@ -14,20 +14,27 @@ const CategorySchema = new mongoose.Schema(
         type: String,
         lowercase: true,
     },
-    imge: String,
-    // imageCover: {
-    //     type: String,
-    //     required: [true, "Category cover image is required"],
-    // },
-    // createdBy: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "User",
-    //     required: true,
-    // },
+    image: String,
 },
 {
     timestamps: true,
 }
 );
+
+const setImageURL = (doc) =>{
+    if(doc.image) {
+        const imageUrl = `${process.env.BASE_URL}/categories/${doc.image}`;
+        doc.image = imageUrl;
+    }
+}
+// findOne, findAll and update
+CategorySchema.post('init', (doc) => {
+    setImageURL(doc);
+});
+
+// createOne
+CategorySchema.post('save', (doc) => {
+    setImageURL(doc);
+});
 
 export default mongoose.model("Category", CategorySchema);
