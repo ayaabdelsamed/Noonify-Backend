@@ -14,6 +14,8 @@ import globalError from "./middlewares/errorMiddleware.js";
 import subCategoryRouter from "./routes/subCategoryRoute.js";
 import brandRouter from "./routes/brandRoute.js";
 import productRouter from "./routes/productRoute.js";
+import userRouter from './routes/userRoute.js';
+import authRouter from './routes/authRoute.js';
 
 dotenv.config({ path: 'config.env'})
 
@@ -39,6 +41,8 @@ app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/subcategories", subCategoryRouter);
 app.use("/api/v1/brands", brandRouter);
 app.use("/api/v1/products", productRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/auth", authRouter);
 
 
 app.use((req,res,next)=>{

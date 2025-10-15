@@ -30,7 +30,7 @@ const resizeImage = asyncHandler(async (req, res, next) =>{
 /**
  * @desc    Create Brand
  * @route   POST /api/v1/brands
- * @access  Private
+ * @access  Private/Admin-Manager
  */
 const createBrand = createOne(brandModel)
 
@@ -51,14 +51,14 @@ const getSpecificBrand = getOne(brandModel)
 /**
  * @desc    Update specific brand 
  * @route   PUT /api/v1/brands/:id
- * @access  Private
+ * @access  Private/Admin-Manager
  */
 const updateBrand = updateOne(brandModel)
 
 /**
  * @desc    Delete specific brand 
  * @route   DELETE /api/v1/brands/:id
- * @access  Private
+ * @access  Private/Admin
  */
 const deleteBrand = deleteOne(brandModel)
 

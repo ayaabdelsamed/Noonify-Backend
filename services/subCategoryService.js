@@ -16,7 +16,7 @@ const createFileObj = (req,res,next)=>{
 /**
  * @desc    Create subCategory
  * @route   POST /api/v1/subCategories
- * @access  Private
+ * @access  Private/Admin-Manager
  */
 const createSubCategory = createOne(subCategoryModel)
 
@@ -38,14 +38,14 @@ const getSubCategory = getOne(subCategoryModel)
 /**
  * @desc    Update specific subcategory 
  * @route   PUT /api/v1/subcategories/:id
- * @access  Private
+ * @access  Private/Admin-Manager
  */
 const updateSubCategory = updateOne(subCategoryModel)
 
 /**
  * @desc    Delete specific subcategory 
  * @route   DELETE /api/v1/subcategories/:id
- * @access  Private
+ * @access  Private/Admin
  */
 const deleteSubCategory = deleteOne(subCategoryModel)
 

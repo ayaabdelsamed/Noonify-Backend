@@ -1,20 +1,21 @@
 import express from "express";
 import { createProductValidator, deleteProductValidator, getProductValidator, updateProductValidator } from "../utils/validators/productValidator.js";
 import { createProduct, deleteProduct, getAllProducts, getSpecificProduct, resizeProductImages, updateProduct, uploadProductImages } from "../services/productService.js";
+import { allowedTo, protectedRoutes } from "../services/authService.js";
 
 const productRouter = express.Router();
 //const uploadProductImage = createUploader("products");
 
 productRouter
     .route("/")
-    .post(uploadProductImages,resizeProductImages,createProductValidator, createProduct)
+    .post(protectedRoutes,allowedTo('admin', 'manager'),uploadProductImages,resizeProductImages,createProductValidator, createProduct)
     .get(getAllProducts);
 
 productRouter
     .route("/:id")
     .get(getProductValidator, getSpecificProduct)
-    .put(uploadProductImages,resizeProductImages,updateProductValidator, updateProduct)
-    .delete(deleteProductValidator, deleteProduct)
+    .put(protectedRoutes,allowedTo('admin', 'manager'),uploadProductImages,resizeProductImages,updateProductValidator, updateProduct)
+    .delete(protectedRoutes,allowedTo('admin'),deleteProductValidator, deleteProduct)
 
 export default productRouter;
 

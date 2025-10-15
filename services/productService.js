@@ -57,7 +57,7 @@ const resizeProductImages = asyncHandler( async(req, res, next) => {
 /**
  * @desc    Create product
  * @route   POST /api/v1/products
- * @access  Private
+ * @access  Private/Admin-Manager
  */
 const createProduct = createOne(productModel)
 
@@ -78,14 +78,14 @@ const getSpecificProduct = getOne(productModel)
 /**
  * @desc    Update specific product 
  * @route   Put /api/v1/products/:id
- * @access  Public
+ * @access  Private/Admin-Manager
  */
 const updateProduct = updateOne(productModel)
 
 /**
  * @desc    Delete specific product 
  * @route   DELETE /api/v1/products/:id
- * @access  Private
+ * @access  Private/Admin
  */
 const deleteProduct = deleteOne(productModel)
 
