@@ -1,9 +1,9 @@
 import ApiError from "../utils/apiError.js";
 
-const handleJwtInvalidSignature=() =>
+const handleJwtInvalidSignature = () =>
   new ApiError("Invalid token, please login again..",401)
 
-const handleJwtInvalidExpired=() =>
+const handleJwtInvalidExpired = () =>
   new ApiError("Expired token, please login again..",401)
 
 const sendErrorForDev = (err, res) => res.status(400).json({

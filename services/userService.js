@@ -33,28 +33,28 @@ const resizeImage = asyncHandler(async (req, res, next) =>{
 /**
  * @desc    Create user
  * @route   POST /api/v1/users
- * @access  Private
+ * @access  Private/Admin
  */
 const createUser = createOne(userModel)
 
 /**
  * @desc    Get list of users
  * @route   GET /api/v1/users
- * @access  Private
+ * @access  Private/Admin
  */
 const getAllUsers = getAll(userModel)
 
 /**
  * @desc    Get specific user by id
  * @route   GET /api/v1/users/:id
- * @access  Private
+ * @access  Private/Admin
  */
 const getSpecificUser = getOne(userModel)
 
 /**
  * @desc    Update specific user 
  * @route   PUT /api/v1/users/:id
- * @access  Private
+ * @access  Private/Admin
  */
 const updateUser = asyncHandler(async (req, res, next) => {
     const user = await userModel.findByIdAndUpdate(
@@ -79,13 +79,14 @@ const updateUser = asyncHandler(async (req, res, next) => {
 /**
  * @desc    Change user password by ID
  * @route   PUT /api/v1/users/changePassword/:id
- * @access  Private
+ * @access  Private/Admin
  */
 const changeUserPassword = asyncHandler(async (req, res, next) => {
     const user = await userModel.findByIdAndUpdate(
         req.params.id,
         {
             password: await bcrypt.hash(req.body.password, 12),
+            passwordChangedAt: Date.now(),
         },
         { new: true });
 
@@ -98,7 +99,7 @@ const changeUserPassword = asyncHandler(async (req, res, next) => {
 /**
  * @desc    Delete specific user 
  * @route   DELETE /api/v1/users/:id
- * @access  Private
+ * @access  Private/Admin
  */
 const deleteUser = deleteOne(userModel)
 
