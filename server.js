@@ -18,6 +18,7 @@ import userRouter from './routes/userRoute.js';
 import authRouter from './routes/authRoute.js';
 import reviewRouter from './routes/reviewRoute.js';
 import wishlistRouter from './routes/wishlistRoute.js';
+import addressRouter from './routes/addressRoute.js';
 
 dotenv.config({ path: 'config.env'})
 
@@ -47,6 +48,7 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/reviews", reviewRouter);
 app.use("/api/v1/wishlist", wishlistRouter);
+app.use("/api/v1/addresses", addressRouter);
 
 
 app.use((req,res,next)=>{

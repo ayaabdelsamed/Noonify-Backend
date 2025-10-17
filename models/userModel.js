@@ -46,10 +46,18 @@ const UserSchema = new mongoose.Schema(
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Product",
-            required: [true, "Review must be belong to product"],
         },
     ],
-
+    addresses: [
+        {
+            id: { type: mongoose.Schema.Types.ObjectId },
+            alias: String,
+            details: String,
+            phone: String,
+            city: String,
+            pastalCode: String,
+        }
+    ]
 },
     { timestamps: true }
 );

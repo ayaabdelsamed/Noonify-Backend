@@ -1,8 +1,5 @@
 import asyncHandler from "express-async-handler";
-
-import { deleteOne, getAll, getOne } from "./handlersFactory.js";
 import userModel from "../models/userModel.js";
-import ApiError from "../utils/apiError.js";
 
 
 /**
@@ -41,7 +38,6 @@ const removeProductFromWishlist = asyncHandler(async (req, res, next) => {
  * @access  Protected/User
  */
 const getLoggedUserWishlist = asyncHandler(async (req, res, next) => {
-    // $pull: remove productId from wishlist array if productId exist
     const user = await userModel.findById(req.user._id).populate('wishlist');
 
     res.status(200).json({ message: "success", results: user.wishlist.length ,data: user.wishlist });
