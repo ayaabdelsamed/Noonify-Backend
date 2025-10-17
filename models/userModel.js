@@ -40,7 +40,16 @@ const UserSchema = new mongoose.Schema(
     active: {
         type: Boolean,
         default: true,
-    }
+    },
+    // child reference (one to many)
+    wishlist: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Product",
+            required: [true, "Review must be belong to product"],
+        },
+    ],
+
 },
     { timestamps: true }
 );
