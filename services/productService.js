@@ -73,7 +73,7 @@ const getAllProducts = getAll(productModel ,"productModel")
  * @route   GET /api/v1/products/:id
  * @access  Public
  */
-const getSpecificProduct = getOne(productModel)
+const getSpecificProduct = getOne(productModel, 'reviews')
 
 /**
  * @desc    Update specific product 

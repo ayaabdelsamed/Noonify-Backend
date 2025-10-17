@@ -6,6 +6,7 @@ import { allowedTo, protectedRoutes } from "../services/authService.js";
 
 const categoryRouter = express.Router();
 
+// Nested route
 categoryRouter.use('/:categoryId/subcategories',subCategoryRouter)
 
 categoryRouter
