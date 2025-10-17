@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import sharp from "sharp";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import bcrypt from "bcryptjs";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import jwt from "jsonwebtoken";
 
 import { uploadSingleImage } from "../middlewares/uploadImageMiddleware.js";
