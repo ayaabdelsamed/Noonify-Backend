@@ -4,10 +4,13 @@ import { ApiFeatures } from "../utils/apiFeatures.js";
 
 const deleteOne = (model) => asyncHandler(async (req, res, next) => {
     const { id } = req.params;
-    const document = await model.findByIdAndDelete(id);
+    const document = await model.findById(id);
     if (!document) {
         return next(new ApiError(`document not found for this ${id}`, 404))
     }
+
+    // Trigger "remove" event when update document
+    await document.deleteOne()
     res.status(200).json({ message: "success" });
 });
 
@@ -20,6 +23,8 @@ const updateOne = (model) => asyncHandler(async (req, res, next) => {
     if (!document) {
         return next(new ApiError(`Document not found for this ${req.params.id}`, 404));
     }
+    // Trigger "save" event when update document
+    document.save();
     
     res.status(200).json({ message: "success", data: document });
 });
@@ -28,9 +33,17 @@ const createOne = (model) => asyncHandler(async (req, res, next) => {
     res.status(201).json({message: "success", data: document });
 });
 
-const getOne = (model) => asyncHandler(async (req, res, next) => {
+const getOne = (model, populationOpt) => asyncHandler(async (req, res, next) => {
     const { id } = req.params;
-    const document = await model.findById({ _id: id });
+    // 1) Build query
+    let query =  model.findById({ _id: id });
+    if(populationOpt){
+        query = query.populate(populationOpt);
+    }
+
+    // 2) Execute query
+    const document = await query;
+
     if (!document) {
         return next(new ApiError(`Document not found for this ${id}`, 404));
     }

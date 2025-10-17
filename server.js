@@ -16,6 +16,7 @@ import brandRouter from "./routes/brandRoute.js";
 import productRouter from "./routes/productRoute.js";
 import userRouter from './routes/userRoute.js';
 import authRouter from './routes/authRoute.js';
+import reviewRouter from './routes/reviewRoute.js';
 
 dotenv.config({ path: 'config.env'})
 
@@ -43,6 +44,7 @@ app.use("/api/v1/brands", brandRouter);
 app.use("/api/v1/products", productRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/reviews", reviewRouter);
 
 
 app.use((req,res,next)=>{

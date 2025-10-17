@@ -2,10 +2,13 @@ import subCategoryModel from "../models/subCategoryModel.js";
 import { createOne, deleteOne, getAll, getOne, updateOne } from "./handlersFactory.js";
 
 const setCategoryIdToBody = (req,res,next)=>{
-    // Nested route
+    // Nested route (Create)
     if(!req.body.category) req.body.category = req.params.categoryId;
     next();
 }
+
+// Nested route
+// GET /api/v1/categories/:categoryId/subCategories
 const createFileObj = (req,res,next)=>{
     let filterObject = {};
     if(req.params.categoryId) filterObject = { category: req.params.categoryId };
