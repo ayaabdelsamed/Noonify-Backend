@@ -8,17 +8,9 @@ import morgan from "morgan";
 import qs from "qs";
 
 import dbConnection from "./config/database.js";
-import categoryRouter from "./routes/categoryRoute.js";
 import ApiError from "./utils/apiError.js";
 import globalError from "./middlewares/errorMiddleware.js";
-import subCategoryRouter from "./routes/subCategoryRoute.js";
-import brandRouter from "./routes/brandRoute.js";
-import productRouter from "./routes/productRoute.js";
-import userRouter from './routes/userRoute.js';
-import authRouter from './routes/authRoute.js';
-import reviewRouter from './routes/reviewRoute.js';
-import wishlistRouter from './routes/wishlistRoute.js';
-import addressRouter from './routes/addressRoute.js';
+import mountRoutes from './routes/index.js';
 
 dotenv.config({ path: 'config.env'})
 
@@ -39,17 +31,8 @@ if(process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'));
     console.log(`mode: ${process.env.NODE_ENV}`);
 }
-// mount Routes
-app.use("/api/v1/categories", categoryRouter);
-app.use("/api/v1/subcategories", subCategoryRouter);
-app.use("/api/v1/brands", brandRouter);
-app.use("/api/v1/products", productRouter);
-app.use("/api/v1/users", userRouter);
-app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/reviews", reviewRouter);
-app.use("/api/v1/wishlist", wishlistRouter);
-app.use("/api/v1/addresses", addressRouter);
-
+// Mount Routes
+mountRoutes(app);
 
 app.use((req,res,next)=>{
     next(new ApiError(`Can't find this route : ${req.originalUrl}`, 400))
@@ -61,7 +44,6 @@ app.use(globalError);
 const {PORT} = process.env;
 
 const server = app.listen(PORT, () => console.log(`App running on port ${PORT}`));
-
 
 
 /**
