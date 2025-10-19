@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import Stripe from "stripe";
 import asyncHandler from "express-async-handler";
 import ApiError from "../utils/apiError.js";
 import orderModel from "../models/orderModel.js";
@@ -5,6 +8,8 @@ import cartModel from "../models/cartModel.js";
 import productModel from "../models/productModel.js";
 import { getAll, getOne } from "./handlersFactory.js";
 
+dotenv.config({ path: "./config.env" });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 /**
  * @desc    Create cash order
@@ -115,6 +120,53 @@ const updateOrderToDelivered = asyncHandler(async (req, res, next) => {
     res.status(200).json({ message: "success", data: updatedOrder });
 });
 
+/**
+ * @desc    Get checkout session from stripe and send it as response
+ * @route   GET /api/orders/checkout-session/:cartId
+ * @access  Private/User
+ */
+const checkoutSession = asyncHandler(async (req, res, next) => {
+    // app settings
+    const taxPrice = 0;
+    const shippingPrice = 0;
+
+    // 1) Get cart depend on cartId
+    const cart = await cartModel.findById(req.params.cartId);
+    if (!cart){
+        return next(new ApiError(`There is no such cart with id: ${req.params.cartId}`, 404));
+    } 
+
+    // 2) Get order price depend on cart price "check if coupon apply"
+    const cartPrice = cart.totalPriceAfterDiscount 
+    ? cart.totalPriceAfterDiscount
+    : cart.totalCartPrice;
+
+    const totalOrderPrice = cartPrice + taxPrice + shippingPrice;
+
+    // 3) Create stripe checkout session
+    const session = await stripe.checkout.sessions.create({
+        mode: "payment",
+        line_items: [
+        {
+            price_data: {
+                currency: "egp",
+                unit_amount: Math.round(totalOrderPrice * 100),
+                product_data: { name: "Order total" },
+            },
+            quantity: 1,
+        },
+    ],
+    success_url: `${req.protocol}://${req.get("host")}/api/v1/orders/card/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${req.protocol}://${req.get("host")}/cart`,
+    customer_email: req.user.email,
+    client_reference_id: req.params.cartId,
+    metadata: req.body.shippingAddress,
+    });
+
+    // 4) Send session to response
+    res.status(200).json({ message: "success", session });
+});
+
 
 export {
     createCashOrder,
@@ -122,5 +174,6 @@ export {
     findAllOrders,
     findSpecificOrder,
     updateOrderToPaid,
-    updateOrderToDelivered
+    updateOrderToDelivered,
+    checkoutSession
 };

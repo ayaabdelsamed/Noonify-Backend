@@ -1,10 +1,13 @@
 import express from "express";
 import { allowedTo, protectedRoutes } from "../services/authService.js";
-import { createCashOrder, filterOrderForLoggedUser, findAllOrders, findSpecificOrder, updateOrderToDelivered, updateOrderToPaid } from "../services/orderService.js";
+import { checkoutSession, createCashOrder, filterOrderForLoggedUser, findAllOrders, findSpecificOrder, updateOrderToDelivered, updateOrderToPaid } from "../services/orderService.js";
 
 const orderRouter = express.Router();
-
+// Public route for Stripe redirect (no token available on redirect)
+// orderRouter.get("/card/success", confirmCardPayment);
 orderRouter.use(protectedRoutes)
+
+orderRouter.route("/checkout-session/:cartId").get(allowedTo('user'), checkoutSession)
 
 orderRouter.route("/:cartId").post(allowedTo('user'), createCashOrder);
 orderRouter.route("/").get(allowedTo('user','admin','manager'), filterOrderForLoggedUser, findAllOrders);

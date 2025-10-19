@@ -6,7 +6,10 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import qs from "qs";
-
+// eslint-disable-next-line import/no-extraneous-dependencies
+import cors from "cors"
+// eslint-disable-next-line import/no-extraneous-dependencies
+import compression from "compression";
 import dbConnection from "./config/database.js";
 import ApiError from "./utils/apiError.js";
 import globalError from "./middlewares/errorMiddleware.js";
@@ -20,7 +23,20 @@ dbConnection()
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Enable other domains to access your application
 const app = express();
+
+const corsOptions = {
+  origin: true,
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
+// Compress all response
+app.use(compression());
 
 // Middlewares
 app.use(express.json());
