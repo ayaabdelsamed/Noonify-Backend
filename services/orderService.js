@@ -188,6 +188,26 @@ const webhookCheckout = asyncHandler(async (req, res, next) => {
     res.status(200).json({ received: true });
 });
 
+// Fallback confirmation endpoint in case webhooks are not configured/reachable
+export const confirmCardPayment = asyncHandler(async (req, res, next) => {
+  const session = await stripe.checkout.sessions.retrieve(req.query.session_id);
+
+  if (session.payment_status === "paid") {
+    // هنا تقدري تخلقي الأوردر فعلاً من بيانات السيشن لو عايزة
+    res.status(200).json({
+      message: "Payment successful",
+      session,
+    });
+  } else {
+    res.status(400).json({
+      message: "Payment failed or not completed yet",
+      session,
+    });
+  }
+});
+
+
+
 export {
     createCashOrder,
     filterOrderForLoggedUser,
@@ -196,5 +216,6 @@ export {
     updateOrderToPaid,
     updateOrderToDelivered,
     checkoutSession,
-    webhookCheckout
+    webhookCheckout,
+    confirmCardPayment
 };
