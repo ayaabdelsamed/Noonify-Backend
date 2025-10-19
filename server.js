@@ -14,6 +14,7 @@ import dbConnection from "./config/database.js";
 import ApiError from "./utils/apiError.js";
 import globalError from "./middlewares/errorMiddleware.js";
 import mountRoutes from './routes/index.js';
+import { webhookCheckout } from './services/orderService.js';
 
 dotenv.config({ path: 'config.env'})
 
@@ -36,6 +37,13 @@ app.use(cors(corsOptions));
 
 // Compress all response
 app.use(compression());
+
+// Checkout webhook
+app.post(
+  "/webhook-checkout",
+  express.raw({ type: "application/json" }),
+  webhookCheckout
+);
 
 // Middlewares
 app.use(express.json());
