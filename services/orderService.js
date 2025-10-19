@@ -189,7 +189,7 @@ const webhookCheckout = asyncHandler(async (req, res, next) => {
 });
 
 // Fallback confirmation endpoint in case webhooks are not configured/reachable
-export const confirmCardPayment = asyncHandler(async (req, res, next) => {
+const confirmCardPayment = asyncHandler(async (req, res, next) => {
   const session = await stripe.checkout.sessions.retrieve(req.query.session_id);
 
   if (session.payment_status === "paid") {
