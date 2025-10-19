@@ -174,7 +174,7 @@ const createCardOrder = async (session) => {
     const orderPrice = session.amount_total / 100;
 
     const cart = await cartModel.findById(cartId);
-    const user = userModel.findOne({email: session.customer_email});
+    const user = await userModel.findOne({email: session.customer_email});
 
     // 3) Create order with default paymentMethodType card
     const order = await orderModel.create({
@@ -200,8 +200,6 @@ const createCardOrder = async (session) => {
     // 5) Clear cart depend on cartId
     await cartModel.findByIdAndDelete(cartId);
     }
-    
-    return order;
 };
 
 /**
