@@ -33,7 +33,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
 
 // Compress all response
 app.use(compression());
