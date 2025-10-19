@@ -7,6 +7,7 @@ import orderModel from "../models/orderModel.js";
 import cartModel from "../models/cartModel.js";
 import productModel from "../models/productModel.js";
 import { getAll, getOne } from "./handlersFactory.js";
+import userModel from "../models/userModel.js";
 
 dotenv.config({ path: "./config.env" });
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -167,6 +168,47 @@ const checkoutSession = asyncHandler(async (req, res, next) => {
     res.status(200).json({ message: "success", session });
 });
 
+const createCardOrder = async (session) => {
+    const cartId = session.client_reference_id;
+    const shippingAddress = session.metadata;
+    const orderPrice = session.amount_total / 100;
+
+    const cart = await cartModel.findById(cartId);
+    const user = userModel.findOne({email: session.customer_email});
+
+    // 3) Create order with default paymentMethodType card
+    const order = await orderModel.create({
+        user: user._id,
+        cartItems: cart.cartItems,
+        shippingAddress,
+        totalOrderPrice: orderPrice,
+        isPaid: true,
+        paidAt: Date.now(),
+        paymentMethodType: 'card',
+    });
+
+    // 4) After creating order, decrement product quantity, increment product sold
+    if(order){
+        const bulkOption = cart.cartItems.map((item) => ({ // بتنفذ اكتر من اوبريشن في كوماند واحد
+        updateOne: {
+            filter: { _id: item.product }, // return product
+            update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
+        },
+    }));
+    await productModel.bulkWrite(bulkOption, {});
+
+    // 5) Clear cart depend on cartId
+    await cartModel.findByIdAndDelete(cartId);
+    }
+    
+    return order;
+};
+
+/**
+ * @desc    This webhook will run when stripe payment success paid
+ * @route   POST /webhook-checkout
+ * @access  Private/User
+ */
 const webhookCheckout = asyncHandler(async (req, res, next) => {
     const sig = req.headers["stripe-signature"];
     let event;
@@ -182,7 +224,8 @@ const webhookCheckout = asyncHandler(async (req, res, next) => {
     }
 
     if (event.type === "checkout.session.completed") {
-        console.log("Create Order Here....");
+        // Create order
+        await createCardOrder(event.data.object);
     }
 
     res.status(200).json({ received: true });
@@ -190,20 +233,25 @@ const webhookCheckout = asyncHandler(async (req, res, next) => {
 
 // Fallback confirmation endpoint in case webhooks are not configured/reachable
 const confirmCardPayment = asyncHandler(async (req, res, next) => {
-  const session = await stripe.checkout.sessions.retrieve(req.query.session_id);
+    const { session_id: sessionId } = req.query;
+    if (!sessionId) return next(new ApiError("Missing session_id", 400));
 
-  if (session.payment_status === "paid") {
-    // هنا تقدري تخلقي الأوردر فعلاً من بيانات السيشن لو عايزة
-    res.status(200).json({
-      message: "Payment successful",
-      session,
-    });
-  } else {
-    res.status(400).json({
-      message: "Payment failed or not completed yet",
-      session,
-    });
-  }
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (!session || session.payment_status !== "paid") {
+        return next(new ApiError("Payment not completed", 400));
+    }
+
+    try {
+        await createCardOrder(session);
+    } catch (err) {
+        // If cart already deleted (webhook processed), consider it success
+        if (String(err.message).includes("Cart not found")) {
+            return res.status(200).json({ message: "success" });
+        }
+    return next(new ApiError("Failed to create order", 500));
+    }
+
+    res.status(200).json({ message: "success" });
 });
 
 
