@@ -231,28 +231,28 @@ const webhookCheckout = asyncHandler(async (req, res, next) => {
     res.status(200).json({ received: true });
 });
 
-// Fallback confirmation endpoint in case webhooks are not configured/reachable
-const confirmCardPayment = asyncHandler(async (req, res, next) => {
-    const { session_id: sessionId } = req.query;
-    if (!sessionId) return next(new ApiError("Missing session_id", 400));
+// // Fallback confirmation endpoint in case webhooks are not configured/reachable
+// const confirmCardPayment = asyncHandler(async (req, res, next) => {
+//     const { session_id: sessionId } = req.query;
+//     if (!sessionId) return next(new ApiError("Missing session_id", 400));
 
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    if (!session || session.payment_status !== "paid") {
-        return next(new ApiError("Payment not completed", 400));
-    }
+//     const session = await stripe.checkout.sessions.retrieve(sessionId);
+//     if (!session || session.payment_status !== "paid") {
+//         return next(new ApiError("Payment not completed", 400));
+//     }
 
-    try {
-        await createCardOrder(session);
-    } catch (err) {
-        // If cart already deleted (webhook processed), consider it success
-        if (String(err.message).includes("Cart not found")) {
-            return res.status(200).json({ message: "success" });
-        }
-    return next(new ApiError("Failed to create order", 500));
-    }
+//     try {
+//         await createCardOrder(session);
+//     } catch (err) {
+//         // If cart already deleted (webhook processed), consider it success
+//         if (String(err.message).includes("Cart not found")) {
+//             return res.status(200).json({ message: "success" });
+//         }
+//     return next(new ApiError("Failed to create order", 500));
+//     }
 
-    res.status(200).json({ message: "success" });
-});
+//     res.status(200).json({ message: "success" });
+// });
 
 
 
@@ -264,6 +264,5 @@ export {
     updateOrderToPaid,
     updateOrderToDelivered,
     checkoutSession,
-    webhookCheckout,
-    confirmCardPayment
+    webhookCheckout
 };
