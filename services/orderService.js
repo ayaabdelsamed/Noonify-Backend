@@ -156,7 +156,7 @@ const checkoutSession = asyncHandler(async (req, res, next) => {
             quantity: 1,
         },
     ],
-    success_url: `${req.protocol}://${req.get("host")}/api/v1/orders/card/success?session_id={CHECKOUT_SESSION_ID}`,
+    success_url: `${req.protocol}://${req.get("host")}/orders`,
     cancel_url: `${req.protocol}://${req.get("host")}/cart`,
     customer_email: req.user.email,
     client_reference_id: req.params.cartId,
@@ -167,6 +167,68 @@ const checkoutSession = asyncHandler(async (req, res, next) => {
     res.status(200).json({ message: "success", session });
 });
 
+const createCardOrder = async (session) => {
+    const cartId = session.client_reference_id;
+    const shippingAddress = session.metadata;
+    const orderPrice = session.amount_total / 100;
+
+    const cart = await cartModel.findById(cartId);
+    const user = await userModel.findOne({email: session.customer_email});
+
+    // 3) Create order with default paymentMethodType card
+    const order = await orderModel.create({
+        user: user._id,
+        cartItems: cart.cartItems,
+        shippingAddress,
+        totalOrderPrice: orderPrice,
+        isPaid: true,
+        paidAt: Date.now(),
+        paymentMethodType: 'card',
+    });
+
+    // 4) After creating order, decrement product quantity, increment product sold
+    if(order){
+        const bulkOption = cart.cartItems.map((item) => ({ // بتنفذ اكتر من اوبريشن في كوماند واحد
+        updateOne: {
+            filter: { _id: item.product }, // return product
+            update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
+        },
+    }));
+    await productModel.bulkWrite(bulkOption, {});
+
+    // 5) Clear cart depend on cartId
+    await cartModel.findByIdAndDelete(cartId);
+    }
+};
+
+/**
+ * @desc    This webhook will run when stripe payment success paid
+ * @route   POST /webhook-checkout
+ * @access  Private/User
+ */
+const webhookCheckout = asyncHandler(async (req, res, next) => {
+    const sig = req.headers["stripe-signature"];
+    let event;
+
+    try {
+    event = stripe.webhooks.constructEvent(
+        req.body,
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET
+    );
+    } catch (err) {
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    if (event.type === "checkout.session.completed") {
+        // Create order
+        await createCardOrder(event.data.object);
+    }
+
+    res.status(200).json({ received: true });
+});
+
+
 
 export {
     createCashOrder,
@@ -175,5 +237,6 @@ export {
     findSpecificOrder,
     updateOrderToPaid,
     updateOrderToDelivered,
-    checkoutSession
+    checkoutSession,
+    webhookCheckout
 };

@@ -4,7 +4,6 @@ import { checkoutSession, createCashOrder, filterOrderForLoggedUser, findAllOrde
 
 const orderRouter = express.Router();
 // Public route for Stripe redirect (no token available on redirect)
-// orderRouter.get("/card/success", confirmCardPayment);
 orderRouter.use(protectedRoutes)
 
 orderRouter.route("/checkout-session/:cartId").get(allowedTo('user'), checkoutSession)
@@ -16,4 +15,3 @@ orderRouter.route("/:id").get(findSpecificOrder);
 orderRouter.route("/:id/pay").put(allowedTo('admin','manager'), updateOrderToPaid);
 orderRouter.route("/:id/deliver").put(allowedTo('admin','manager'), updateOrderToDelivered);
 export default orderRouter;
-
