@@ -157,7 +157,7 @@ const checkoutSession = asyncHandler(async (req, res, next) => {
             quantity: 1,
         },
     ],
-    success_url: `${req.protocol}://${req.get("host")}/orders`,
+    success_url: `${req.protocol}://${req.get("host")}/api/v1/orders/card/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${req.protocol}://${req.get("host")}/cart`,
     customer_email: req.user.email,
     client_reference_id: req.params.cartId,
