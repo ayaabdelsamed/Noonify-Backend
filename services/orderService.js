@@ -244,10 +244,16 @@ const confirmCardPayment = asyncHandler(async (req, res, next) => {
     try {
         await createCardOrder(session);
     } catch (err) {
-        // If cart already deleted (webhook processed), consider it success
-        if (String(err.message).includes("Cart not found")) {
+        // ✅ لو الأوردر اتعمل بالفعل (من الـ webhook)
+        if (
+        String(err.message).includes("Cart not found") ||
+        String(err.message).includes("E11000") || // duplicate
+        String(err.message).includes("already exists")
+        ) {
         return res.status(200).json({ message: "success" });
         }
+
+        console.error("❌ Failed to create order:", err);
         return next(new ApiError("Failed to create order", 500));
     }
 
