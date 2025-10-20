@@ -200,7 +200,6 @@ const createCardOrder = async (session) => {
     // 5) Clear cart depend on cartId
     await cartModel.findByIdAndDelete(cartId);
     }
-    return order;
 };
 
 /**
@@ -231,35 +230,6 @@ const webhookCheckout = asyncHandler(async (req, res, next) => {
 });
 
 
-// Fallback confirmation endpoint in case webhooks are not configured/reachable
-const confirmCardPayment = asyncHandler(async (req, res, next) => {
-    const { session_id: sessionId } = req.query;
-    if (!sessionId) return next(new ApiError("Missing session_id", 400));
-
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    if (!session || session.payment_status !== "paid") {
-        return next(new ApiError("Payment not completed", 400));
-    }
-
-    try {
-        await createCardOrder(session);
-    } catch (err) {
-        // ✅ لو الأوردر اتعمل بالفعل (من الـ webhook)
-        if (
-        String(err.message).includes("Cart not found") ||
-        String(err.message).includes("E11000") || // duplicate
-        String(err.message).includes("already exists")
-        ) {
-        return res.status(200).json({ message: "success" });
-        }
-
-        console.error("❌ Failed to create order:", err);
-        return next(new ApiError("Failed to create order", 500));
-    }
-
-    res.status(200).json({ message: "success" });
-});
-
 
 
 export {
@@ -271,5 +241,4 @@ export {
     updateOrderToDelivered,
     checkoutSession,
     webhookCheckout,
-    confirmCardPayment
 };
