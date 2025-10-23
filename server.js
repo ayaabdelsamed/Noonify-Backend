@@ -9,6 +9,7 @@ import cors from "cors"
 import compression from "compression";
 import rateLimit from 'express-rate-limit';
 import cookieParser from "cookie-parser";
+import hpp from 'hpp';
 
 import dbConnection from "./config/database.js";
 import ApiError from "./utils/apiError.js";
@@ -73,7 +74,11 @@ const limiter = rateLimit({
   message: "Too many accounts created from this IP, please try again after an hour",
 });
 
+// Apply the rate limiting middleware to all requests
 app.use("/api",limiter);
+
+// Middleware to protect against HTTP Parameter Pollution attacks
+app.use(hpp({whitelist: ['price', 'sold', 'quantity', 'ratingsQuantity', 'ratingsAverage'] }));
 
 // Mount Routes
 mountRoutes(app);

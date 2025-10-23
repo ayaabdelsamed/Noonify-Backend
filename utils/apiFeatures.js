@@ -21,12 +21,15 @@ export class ApiFeatures{
 
     sort(){
         if (this.queryString.sort) {
-            const sortBy = this.queryString.sort.split(",").join(" ");
-            this.mongooseQuery = this.mongooseQuery.sort(sortBy);
+            let sortBy = this.queryString.sort;
+            if (Array.isArray(sortBy)) {
+                sortBy = sortBy.join(',');
+            }
+            this.mongooseQuery = this.mongooseQuery.sort(sortBy.split(',').join(' '));
         } else {
-            this.mongooseQuery = this.mongooseQuery.sort("-createdAt");
+            this.mongooseQuery = this.mongooseQuery.sort('-createdAt');
         }
-        return this;
+    return this;
     }
 
     limitFields(){
