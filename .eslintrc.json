@@ -24,6 +24,7 @@
     "no-undef": "warn",
     "prefer-destructuring": ["warn", { "object": true, "array": false }],
     "no-unused-vars": ["warn", { "argsIgnorePattern": "req|res|next|val" }],
-    "import/extensions": ["error", "always", { "js": "always" }]
+    "import/extensions": ["error", "always", { "js": "always" }],
+  "import/no-extraneous-dependencies": ["error", {"devDependencies": ["**/*.test.js", "**/*.spec.js"]}]
   }
 }

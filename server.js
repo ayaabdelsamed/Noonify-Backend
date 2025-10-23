@@ -4,17 +4,19 @@ import { fileURLToPath } from "url";
 import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import qs from "qs";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import cors from "cors"
-// eslint-disable-next-line import/no-extraneous-dependencies
 import compression from "compression";
+import rateLimit from 'express-rate-limit';
+import cookieParser from "cookie-parser";
+import hpp from 'hpp';
+
 import dbConnection from "./config/database.js";
 import ApiError from "./utils/apiError.js";
 import globalError from "./middlewares/errorMiddleware.js";
 import mountRoutes from './routes/index.js';
 import { webhookCheckout } from './services/orderService.js';
+import csrfProtection from './middlewares/csrfProtection.js';
 
 dotenv.config({ path: 'config.env'})
 
@@ -47,13 +49,37 @@ app.post(
 
 // Middlewares
 app.use(express.json());
+
 app.use(express.static(path.join(__dirname,'uploads')));
 app.set("query parser", (str) => qs.parse(str));
+
+app.use(cookieParser());
+
+
+app.get("/api/v1/csrf-token", csrfProtection, (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
+
+
 
 if(process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'));
     console.log(`mode: ${process.env.NODE_ENV}`);
 }
+
+// Limit each IP to 100 requests per 'window' (here, per 15 mins)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 mins
+  max: 15,
+  message: "Too many accounts created from this IP, please try again after an hour",
+});
+
+// Apply the rate limiting middleware to all requests
+app.use("/api",limiter);
+
+// Middleware to protect against HTTP Parameter Pollution attacks
+app.use(hpp({whitelist: ['price', 'sold', 'quantity', 'ratingsQuantity', 'ratingsAverage'] }));
+
 // Mount Routes
 mountRoutes(app);
 
