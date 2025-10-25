@@ -8,6 +8,7 @@ import userModel from "../models/userModel.js";
 import ApiError from "../utils/apiError.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { createToken } from "../utils/createToken.js";
+import { sanitizeUser } from "../utils/sanitizeData.js";
 
 
 /**
@@ -16,6 +17,7 @@ import { createToken } from "../utils/createToken.js";
  * @access  Public
  */
 const signUp = asyncHandler(async (req, res, next) => {
+
     // 1) Create user
     const user = await userModel.create({
         name: req.body.name,
@@ -25,7 +27,7 @@ const signUp = asyncHandler(async (req, res, next) => {
 
     // 2) Generate jwt token
     const token = createToken(user._id);
-    res.status(201).json({ message: "success", data: user, token });
+    res.status(201).json({ message: "success", data: sanitizeUser(user), token });
 })
 
 /**
@@ -43,7 +45,7 @@ const logIn = asyncHandler(async (req, res, next) => {
 
     // 2) Generate jwt token
     const token = createToken(user._id);
-    res.status(201).json({ message: "success", data: user, token });
+    res.status(201).json({ message: "success", data: sanitizeUser(user), token });
 })
 
 /**
