@@ -4,11 +4,14 @@ import { fileURLToPath } from "url";
 import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import qs from "qs";
 import cors from "cors"
 import compression from "compression";
 import rateLimit from 'express-rate-limit';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import cookieParser from "cookie-parser";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import hpp from 'hpp';
 
 import dbConnection from "./config/database.js";
@@ -17,6 +20,7 @@ import globalError from "./middlewares/errorMiddleware.js";
 import mountRoutes from './routes/index.js';
 import { webhookCheckout } from './services/orderService.js';
 import csrfProtection from './middlewares/csrfProtection.js';
+import sanitizeMiddleware from './middlewares/sanitizeMiddleware.js';
 
 dotenv.config({ path: 'config.env'})
 
@@ -66,6 +70,10 @@ if(process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'));
     console.log(`mode: ${process.env.NODE_ENV}`);
 }
+
+// To apply data sanitization
+app.use(sanitizeMiddleware);
+
 
 // Limit each IP to 100 requests per 'window' (here, per 15 mins)
 const limiter = rateLimit({
